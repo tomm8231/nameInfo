@@ -49,13 +49,14 @@ public class NameInfoService {
   }
 
   public NameInfoResponse fetchNameDetails(String name) {
-    Mono<GenderResponse> gender = getGender(name);
-    Mono<AgeResponse> age = getAge(name);
-    Mono<NationalityResponse> nationality = getNationality(name);
 
     Optional<NameInfo> foundName = nameInfoRepository.findById(name);
     if (!foundName.isPresent()) {
-      System.out.println("Not in db");
+      System.out.println("Not in db: " + name);
+
+      Mono<GenderResponse> gender = getGender(name);
+      Mono<AgeResponse> age = getAge(name);
+      Mono<NationalityResponse> nationality = getNationality(name);
 
       Mono<NameInfo> mono = Mono.zip(age, gender, nationality)
           .map(tuple -> new NameInfo(tuple.getT1(), tuple.getT2(),tuple.getT3()));
@@ -69,7 +70,7 @@ public class NameInfoService {
       return nameInfoResponse;
 
     } else {
-      System.out.println("Already in db");
+      System.out.println("Already in db: " + name);
       NameInfoResponse nameInfoResponse = new NameInfoResponse(foundName.get());
       return nameInfoResponse;
 
